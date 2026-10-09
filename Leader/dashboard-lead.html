@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Leader - Section Viber</title>
+
+<style>
+:root{--sidebar:#10638b;--blue:#1479e8;--ink:#182433;--muted:#8290a3;--line:#e6edf4;--bg:#f4f7fb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,"Segoe UI",Arial,sans-serif;color:var(--ink);font-size:13px}
+.app{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:208px;background:var(--sidebar);color:#fff;display:flex;flex-direction:column;padding:22px 14px 16px;transition:width .25s;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 7px 30px;white-space:nowrap;overflow:hidden}
+.brand-mark{width:38px;height:38px;border:none;border-radius:50%;background:#d5e8f2;color:var(--sidebar);display:grid;place-items:center;font-size:17px;font-weight:800;flex-shrink:0;cursor:pointer}
+.brand-mark:hover{background:#fff}
+.brand-name{font-size:14px;font-weight:700}
+.nav{display:grid;gap:7px}
+.nav a{display:flex;align-items:center;gap:12px;color:#dcecf5;text-decoration:none;padding:11px 12px;border-radius:7px;white-space:nowrap;overflow:hidden}
+.nav a:hover,.nav a.active{background:#fff;color:#12618a}
+.nav .ico{width:17px;text-align:center;font-size:14px;flex-shrink:0}
+.sidebar-bottom{margin-top:auto;padding:20px 7px 0}
+.logout{width:100%;border:none;background:#fff;color:#263747;padding:10px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600}
+
+/* MAIN */
+.main{min-width:0;flex:1;display:flex;flex-direction:column}
+.topbar{height:58px;display:flex;align-items:center;padding:0 28px;background:#fff;border-bottom:1px solid var(--line)}
+.crumb{color:var(--muted);font-size:13px}
+.content{padding:26px 28px 24px;flex:1}
+.heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px}
+.heading h1{font-size:25px;margin:0 0 7px;font-weight:700}
+.heading p{margin:0;color:var(--muted);font-size:13px}
+.date-note{font-size:11px;color:var(--muted);background:#fff;border:1px solid var(--line);padding:9px 12px;border-radius:8px;white-space:nowrap}
+
+/* FILTER */
+.filters{display:grid;grid-template-columns:190px minmax(180px,1fr) 160px;gap:10px;margin-bottom:15px}
+.field{height:42px;display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #dfe7ef;border-radius:8px;padding:0 11px;color:var(--muted);min-width:0}
+.field input,.field select{border:none;outline:none;background:transparent;width:100%;font:inherit;color:#354356;min-width:0}
+.field select{cursor:pointer}
+
+/* TABLE */
+.table-card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:0 3px 12px #24364b05}
+.table-scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:1060px}
+thead{background:#fbfcfe}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:#8794a5;font-weight:700;text-align:left;padding:16px 13px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:17px 13px;border-bottom:1px solid #edf1f5;vertical-align:middle;font-size:12px}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#fbfdff}
+.material{font-weight:700;color:#1476d4;white-space:nowrap}
+.work{font-weight:600;color:#273548;min-width:140px;display:block}
+.so,.qty{white-space:nowrap}
+
+/* BARIS PER INDIVIDU (tim, progress, status harus sejajar) */
+.pl{height:34px;display:flex;align-items:center;margin-bottom:9px}
+.pl:last-child{margin-bottom:0}
+.team-col{min-width:130px}
+.progress-cell{min-width:150px}
+.progress-wrap{display:flex;align-items:center;gap:9px;width:100%}
+.track{height:5px;background:#e6edf4;border-radius:99px;flex:1;min-width:65px;overflow:hidden}
+.fill{height:100%;background:#287ce8;border-radius:99px}
+.fill.gray{background:#b9c5d0}
+.percent{font-size:10px;color:#8491a1;min-width:28px;text-align:right}
+.team-chip{display:inline-flex;align-items:center;padding:6px 9px;border-radius:7px;background:#edf5ff;color:#1769b2;font-size:11px;font-weight:650;white-space:nowrap}
+.team-empty{color:#9aa5b3;font-size:11px;font-style:italic}
+
+/* STATUS */
+.status{display:inline-block;padding:6px 9px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap;border:none;cursor:default;font-family:inherit}
+.status.has-reason{cursor:pointer}
+.status.has-reason:hover{filter:brightness(.96);box-shadow:0 0 0 2px #dbeafe}
+.s-progress{color:#1874d2;background:#e9f3ff}
+.s-done{color:#168454;background:#e6f8ef}
+.s-planning{color:#667486;background:#eef1f5}
+.s-pending{color:#b77916;background:#fff4d9}
+.s-cancel{color:#d94b48;background:#ffeded}
+
+/* KOLOM AKSI (4 ikon) */
+.action-col{width:1%;white-space:nowrap}
+.actions{display:flex;gap:6px}
+.icon-btn{width:32px;height:32px;display:grid;place-items:center;border:1px solid #dfe7ef;background:#fff;color:#4d6178;border-radius:8px;cursor:pointer;font-size:14px;padding:0;transition:.15s}
+.icon-btn:hover{background:#f0f7ff;border-color:#bdd9ff;color:#1769b2}
+.icon-btn:disabled{opacity:.4;cursor:not-allowed;background:#fff;border-color:#dfe7ef;color:#4d6178}
+.icon-btn .badge{position:absolute}
+.icon-btn.has-count{position:relative}
+.icon-btn .count{position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;border-radius:99px;background:#1479e8;color:#fff;font-size:9px;font-weight:700;display:grid;place-items:center;padding:0 4px}
+
+/* FOOTER TABEL */
+.table-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;border-top:1px solid var(--line);color:#8794a5;font-size:11px}
+.pagination{display:flex;gap:5px}
+.page{border:1px solid #e0e7ef;background:#fff;color:#718096;border-radius:5px;padding:6px 9px;cursor:pointer}
+.page.active{background:#eaf3ff;border-color:#bdd9ff;color:#126fd0}
+.empty{text-align:center;padding:35px;color:#8794a5}
+.footer{background:#073d65;color:#c5d6e2;display:flex;justify-content:space-between;gap:14px;padding:14px 25px;font-size:10px}
+.footer strong{color:#fff}
+
+/* COLLAPSE SIDEBAR */
+.collapsed .sidebar{width:68px;padding-left:10px;padding-right:10px}
+.collapsed .brand{padding-left:5px;padding-right:0}
+.collapsed .brand-name,.collapsed .nav-label{display:none}
+.collapsed .nav a{justify-content:center;padding:12px 0}
+.collapsed .sidebar-bottom{padding-left:0;padding-right:0}
+.collapsed .logout{font-size:0}
+.collapsed .logout::after{content:"↪";font-size:15px}
+
+/* MODAL UMUM */
+.modal-backdrop{position:fixed;inset:0;background:rgba(20,34,50,.42);display:none;align-items:center;justify-content:center;padding:20px;z-index:30}
+.modal-backdrop.top{z-index:45}
+.modal-backdrop.show{display:flex}
+@keyframes popupIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* POPUP ALASAN PENDING / CANCEL */
+.reason-modal{width:min(100%,540px);background:#fff;border:1px solid #e6edf4;border-radius:17px;box-shadow:0 22px 70px #10233b30;padding:28px;animation:popupIn .18s ease-out}
+.modal-title-row{display:flex;align-items:center;gap:15px;margin-bottom:27px}
+.modal-icon{width:44px;height:44px;border-radius:9px;display:grid;place-items:center;font-size:24px;flex-shrink:0}
+.modal-icon.pending{background:#fff3cc}
+.modal-icon.cancel{background:#ffeded}
+.modal-title{font-size:23px;font-weight:750;margin:0}
+.reason-job{display:flex;align-items:center;gap:13px;margin-bottom:25px}
+.reason-gear{width:35px;height:35px;border-radius:8px;background:#e8e8e8;display:grid;place-items:center;font-size:18px;flex-shrink:0}
+.reason-job-name{font-weight:750;font-size:13px;margin-bottom:5px}
+.reason-meta{font-size:12px;color:#718096;line-height:1.6}
+.reason-label{font-size:13px;font-weight:700;color:#4a5b70;margin-bottom:9px}
+.reason-copy{border-radius:11px;padding:14px 15px;font-size:13px;line-height:1.7;border:1px solid}
+.reason-copy.pending{background:#fff7e2;border-color:#ffedbf;color:#9b6713}
+.reason-copy.cancel{background:#fff0ef;border-color:#ffe0dc;color:#d9443e}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:20px}
+.modal-close{border:1px solid #d9e2ec;background:#fff;border-radius:9px;padding:12px 19px;font-weight:650;color:#506176;cursor:pointer;font-family:inherit}
+.modal-close:hover{background:#f7f9fc}
+.reason-action{border:none;border-radius:9px;padding:12px 19px;font-weight:700;font-size:13px;color:#fff;cursor:pointer;font-family:inherit}
+.reason-action[hidden]{display:none}
+.reason-action.run{background:#168454}
+.reason-action.run:hover{background:#12703f}
+.reason-action.reactivate{background:#1479e8}
+.reason-action.reactivate:hover{background:#0f66c4}
+.mobile-overlay{display:none}
+
+/* MODAL TIM / RIWAYAT / UBAH STATUS / PROGRESS */
+.team-modal,.history-modal,.status-modal{max-height:min(90vh,800px);overflow-y:auto;background:#fff;border:1px solid #e6edf4;border-radius:17px;box-shadow:0 22px 70px #10233b30;padding:25px;animation:popupIn .18s ease-out}
+.team-modal{width:min(100%,620px)}
+.history-modal{width:min(100%,680px)}
+.status-modal{width:min(100%,560px)}
+.team-modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:7px}
+.team-modal-title{margin:0;font-size:21px;font-weight:750}
+.team-modal-subtitle{color:#718096;font-size:12px;line-height:1.6;margin-bottom:20px}
+.team-section-title{font-size:12px;color:#4a5b70;font-weight:750;margin:17px 0 9px}
+.team-member-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e6edf4;border-radius:10px;padding:10px 12px;margin-bottom:7px}
+.team-member-name{font-size:12px;font-weight:700}
+.team-member-id{font-size:10px;color:#8290a3;margin-top:3px}
+.team-remove-btn{border:1px solid #ffd8d6;background:#fff4f3;color:#c83e39;border-radius:7px;padding:7px 9px;cursor:pointer;font-size:10px;font-weight:700;flex-shrink:0}
+.team-add-row{display:flex;gap:8px;align-items:center}
+.team-add-row select,.status-select{flex:1;min-width:0;height:39px;border:1px solid #dfe7ef;border-radius:8px;padding:0 10px;background:#fff;color:#354356;font:inherit;width:100%}
+.team-add-btn,.team-save-btn{border:none;border-radius:8px;background:#1479e8;color:#fff;padding:10px 13px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit}
+.team-save-btn.danger{background:#d94b48}
+.team-save-btn:disabled{opacity:.45;cursor:not-allowed}
+.team-note{background:#f4f8fc;border:1px solid #e4edf5;border-radius:9px;color:#718096;font-size:11px;line-height:1.6;padding:10px 12px;margin-top:15px}
+.team-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+.team-cancel-btn{border:1px solid #d9e2ec;background:#fff;color:#506176;border-radius:8px;padding:10px 13px;cursor:pointer;font-size:11px;font-weight:650;font-family:inherit}
+.team-toast{position:fixed;right:22px;bottom:22px;z-index:60;display:none;background:#173b57;color:#fff;border-radius:9px;padding:12px 16px;box-shadow:0 8px 28px #10233b2b;font-size:12px}
+.team-toast.show{display:block}
+
+/* POPUP UBAH STATUS */
+.status-current{font-size:11px;color:#8290a3;margin-top:7px}
+.status-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.status-opt{display:flex;align-items:center;gap:10px;border:1.5px solid #e0e7ef;background:#fff;border-radius:11px;padding:13px;cursor:pointer;font:inherit;font-weight:700;font-size:12px;color:#506176;text-align:left}
+.status-opt .oi{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:15px}
+.status-opt[data-val="Pending"] .oi{background:#fff3cc}
+.status-opt[data-val="Cancel"] .oi{background:#ffeded}
+.status-opt[data-val="Pending"].selected{border-color:#f0b84a;background:#fff9ea;color:#9b6713}
+.status-opt[data-val="Cancel"].selected{border-color:#ef8c89;background:#fff3f2;color:#c83e39}
+.status-textarea{width:100%;min-height:96px;resize:vertical;border:1px solid #dfe7ef;border-radius:10px;padding:11px 12px;font:inherit;font-size:12px;line-height:1.6;color:#354356;outline:none}
+.status-textarea:focus,.status-select:focus{border-color:#8fbdf5;box-shadow:0 0 0 3px #e4f0ff}
+.status-error{color:#c83e39;font-size:11px;margin-top:8px;min-height:14px}
+
+/* POPUP UPDATE PROGRESS (SLIDER) */
+.slider-card{border:1px solid #e6edf4;border-radius:12px;padding:14px 16px 12px;background:#fff}
+.slider-wrap{position:relative;padding-top:38px}
+.slider-bubble{position:absolute;top:0;transform:translateX(-50%);background:#e0e3e8;color:#182433;font-weight:700;font-size:12px;padding:6px 10px;border-radius:8px;min-width:40px;text-align:center;pointer-events:none;white-space:nowrap}
+.slider-bubble::after{content:"";position:absolute;left:50%;bottom:-5px;transform:translateX(-50%);border:6px solid transparent;border-top-color:#e0e3e8;border-bottom:0}
+.progress-range{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;margin:0;cursor:pointer;display:block;--p:11px}
+.progress-range:focus{outline:none}
+.progress-range::-webkit-slider-runnable-track{height:8px;border-radius:99px;background:linear-gradient(to right,#10638b 0,#10638b var(--p),#d9dce0 var(--p),#d9dce0 100%)}
+.progress-range::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;box-sizing:border-box;width:22px;height:22px;margin-top:-7px;border-radius:50%;background:#10638b;border:3px solid #fff;box-shadow:0 1px 6px #10233b55}
+.progress-range::-moz-range-track{height:8px;border-radius:99px;background:linear-gradient(to right,#10638b 0,#10638b var(--p),#d9dce0 var(--p),#d9dce0 100%)}
+.progress-range::-moz-range-thumb{box-sizing:border-box;width:22px;height:22px;border-radius:50%;background:#10638b;border:3px solid #fff;box-shadow:0 1px 6px #10233b55}
+.progress-range:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px #cfe4f5}
+.progress-range:disabled{opacity:.45;cursor:not-allowed}
+.slider-scale{display:flex;justify-content:space-between;color:#9aa5b3;font-size:10px;margin-top:8px}
+.progress-note{margin-top:12px;font-size:11px;line-height:1.6;color:#9b6713;background:#fff7e2;border:1px solid #ffedbf;border-radius:9px;padding:9px 12px}
+.progress-note[hidden]{display:none}
+
+/* TOMBOL HEADER + FORM TUGAS MANUAL */
+.heading-side{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.heading-side .date-note{margin-top:0}
+.hbtn{display:inline-flex;align-items:center;gap:7px;border:1px solid transparent;border-radius:8px;padding:10px 14px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap}
+.hbtn.primary{background:var(--sidebar);color:#fff}
+.hbtn.primary:hover{background:#0d5578}
+.hbtn.outline{background:#fff;color:var(--sidebar);border-color:#a9c8dd}
+.hbtn.outline:hover{background:#f0f7ff}
+.manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.manual-grid .full{grid-column:1/-1}
+.m-field label{display:block;font-size:11px;font-weight:600;margin-bottom:6px;color:#66768a}
+.m-field input{width:100%;min-width:0;height:42px;background:#fff;border:1px solid #dfe7ef;border-radius:8px;padding:0 11px;color:#354356;outline:none;font:inherit}
+.m-field input:focus{border-color:#8fbdf5;box-shadow:0 0 0 3px #e4f0ff}
+.m-hint{font-size:10px;color:#9aa5b3;margin-top:5px}
+
+/* RIWAYAT */
+.history-list{display:grid;gap:10px}
+.history-item{border:1px solid #e5ecf3;border-radius:11px;padding:13px;background:#fff}
+.history-item-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+.history-action{font-weight:750;font-size:12px}
+.history-time{color:#8290a3;font-size:10px;margin-top:4px}
+.history-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.history-field{background:#f7f9fc;border-radius:7px;padding:9px;min-width:0}
+.history-field label{display:block;color:#8290a3;font-size:10px;margin-bottom:4px}
+.history-field strong{display:block;color:#344256;font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+.history-reason{color:#52657a;font-size:11px;line-height:1.65;margin-top:10px}
+.history-empty{text-align:center;color:#8290a3;border:1px dashed #d7e0ea;border-radius:10px;padding:22px 12px;font-size:12px}
+
+/* RESPONSIVE */
+@media (max-width:900px){
+    .sidebar{width:180px}
+    .content{padding:22px 18px}
+    .topbar{padding:0 18px}
+    .filters{grid-template-columns:1fr 1.5fr 1fr}
+}
+@media (max-width:650px){
+    .app{display:block}
+    .sidebar{position:fixed;z-index:10;left:0;top:0;bottom:0;width:230px;transform:translateX(-100%);transition:transform .25s;box-shadow:10px 0 30px #001e3320}
+    .mobile-open .sidebar{transform:translateX(0)}
+    .mobile-overlay{position:fixed;inset:0;background:#0b203c66;z-index:9}
+    .mobile-open .mobile-overlay{display:block}
+    .collapsed .sidebar{width:230px}
+    .collapsed .brand-name,.collapsed .nav-label{display:inline}
+    .collapsed .nav a{justify-content:flex-start;padding:11px 12px}
+    .topbar{height:52px}
+    .content{padding:20px 13px}
+    .heading{display:block}
+    .heading h1{font-size:21px}
+    .date-note{display:inline-block;margin-top:14px}
+    .filters{grid-template-columns:1fr;gap:8px}
+    .field{height:41px}
+    .footer{padding:13px;flex-direction:column;gap:6px}
+    .table-footer{align-items:flex-start;flex-direction:column}
+    .crumb{display:none}
+    .reason-modal{padding:22px}
+    .modal-title{font-size:20px}
+    .team-modal,.history-modal,.status-modal{padding:18px}
+    .team-add-row{align-items:stretch;flex-direction:column}
+    .team-add-btn{width:100%}
+    .team-modal-title{font-size:19px}
+    .history-grid,.status-options{grid-template-columns:1fr}
+    .modal-actions .reason-action,.modal-actions .modal-close{flex:1}
+    .heading-side{justify-content:flex-start;margin-top:14px}
+    .heading-side .hbtn{flex:1;justify-content:center}
+    .manual-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<div class="app" id="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand">
+            <button class="brand-mark" id="toggleBtn" aria-label="Perkecil atau buka menu" title="Perkecil / buka menu">▦</button>
+            <span class="brand-name">Section Viber</span>
+        </div>
+
+        <nav class="nav" aria-label="Menu utama">
+            <a href="#dashboard" class="active" data-page="Dashboard">
+                <span class="ico">▦</span><span class="nav-label">Dashboard</span>
+            </a>
+            <a href="#karyawan" data-page="Progress">
+                <span class="ico">♙</span><span class="nav-label">Progress</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <button class="logout" id="logoutBtn">Log out&nbsp; ↪</button>
+        </div>
+    </aside>
+
+    <div class="mobile-overlay" id="overlay"></div>
+
+    <!-- MODAL RIWAYAT PENUGASAN -->
+    <div class="modal-backdrop" id="historyModal" role="dialog" aria-modal="true" aria-labelledby="historyModalTitle">
+        <section class="history-modal">
+            <div class="team-modal-header"><h2 class="team-modal-title" id="historyModalTitle">Riwayat Penugasan</h2></div>
+            <div class="team-modal-subtitle" id="historyJobInfo">Riwayat perubahan tim pekerjaan.</div>
+            <div class="history-list" id="historyList"></div>
+            <div class="team-modal-actions">
+                <button type="button" class="team-cancel-btn" id="closeHistoryModal">Tutup</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- MODAL KELOLA TIM PENGERJA -->
+    <div class="modal-backdrop" id="teamModal" role="dialog" aria-modal="true" aria-labelledby="teamModalTitle">
+        <section class="team-modal">
+            <div class="team-modal-header"><h2 class="team-modal-title" id="teamModalTitle">Kelola Tim Pengerja</h2></div>
+            <div class="team-modal-subtitle" id="teamJobInfo">Atur karyawan yang ditugaskan pada pekerjaan ini.</div>
+
+            <div class="team-section-title">Karyawan yang sedang ditugaskan</div>
+            <div id="assignedEmployees"></div>
+
+            <div class="team-section-title">Tambah karyawan</div>
+            <div class="team-add-row">
+                <select id="employeeSelect" aria-label="Pilih karyawan untuk ditambahkan">
+                    <option value="">Pilih karyawan...</option>
+                </select>
+                <button type="button" class="team-add-btn" id="addEmployeeBtn">＋ Tambahkan</button>
+            </div>
+            <div class="team-note">
+                Perubahan pada demo ini langsung diterapkan di tampilan dashboard dan hanya tersimpan selama halaman masih terbuka. Pada aplikasi produksi, perubahan perlu disimpan melalui backend/database dan sebaiknya dilengkapi pencatatan alasan serta riwayat penugasan.
+            </div>
+            <div class="team-modal-actions">
+                <button type="button" class="team-cancel-btn" id="closeTeamModal">Tutup</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- MODAL UPDATE PROGRESS -->
+    <div class="modal-backdrop" id="progressModal" role="dialog" aria-modal="true" aria-labelledby="progressModalTitle">
+        <section class="status-modal">
+            <div class="team-modal-header"><h2 class="team-modal-title" id="progressModalTitle">Update Progress</h2></div>
+            <div class="team-modal-subtitle" id="progressJobInfo">Geser untuk mengatur persentase progress.</div>
+
+            <div class="team-section-title" style="margin-top:0">Karyawan</div>
+            <select class="status-select" id="progressPersonSelect" aria-label="Pilih karyawan"></select>
+            <div class="status-current" id="progressCurrent"></div>
+
+            <div class="team-section-title">Progress pekerjaan</div>
+            <div class="slider-card">
+                <div class="slider-wrap">
+                    <div class="slider-bubble" id="sliderBubble">0%</div>
+                    <input type="range" class="progress-range" id="progressRange" min="0" max="100" step="5" value="0" aria-label="Persentase progress">
+                </div>
+                <div class="slider-scale"><span>0%</span><span>50%</span><span>100%</span></div>
+            </div>
+
+            <div class="progress-note" id="progressNote" hidden></div>
+
+            <div class="team-modal-actions">
+                <button type="button" class="team-cancel-btn" id="closeProgressModal">Batal</button>
+                <button type="button" class="team-save-btn" id="saveProgressBtn" disabled>Simpan Progress</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- MODAL UBAH STATUS -->
+    <div class="modal-backdrop" id="statusModal" role="dialog" aria-modal="true" aria-labelledby="statusModalTitle">
+        <section class="status-modal">
+            <div class="team-modal-header"><h2 class="team-modal-title" id="statusModalTitle">Ubah Status</h2></div>
+            <div class="team-modal-subtitle" id="statusJobInfo">Pilih karyawan dan status baru.</div>
+
+            <div class="team-section-title" style="margin-top:0">Karyawan</div>
+            <select class="status-select" id="statusPersonSelect" aria-label="Pilih karyawan"></select>
+            <div class="status-current" id="statusCurrent"></div>
+
+            <div class="team-section-title">Status baru</div>
+            <div class="status-options">
+                <button type="button" class="status-opt" data-val="Pending"><span class="oi">⚠️</span>Pending</button>
+                <button type="button" class="status-opt" data-val="Cancel"><span class="oi">✕</span>Cancel</button>
+            </div>
+
+            <div class="team-section-title" id="statusReasonLabel">Alasan</div>
+            <textarea class="status-textarea" id="statusReason" placeholder="Tulis alasan kenapa pending / cancel..." aria-labelledby="statusReasonLabel"></textarea>
+            <div class="status-error" id="statusError" role="alert"></div>
+
+            <div class="team-modal-actions">
+                <button type="button" class="team-cancel-btn" id="closeStatusModal">Batal</button>
+                <button type="button" class="team-save-btn" id="saveStatusBtn">Simpan Status</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- MODAL TAMBAH TUGAS MANUAL -->
+    <div class="modal-backdrop" id="manualModal" role="dialog" aria-modal="true" aria-labelledby="manualModalTitle">
+        <section class="status-modal">
+            <div class="team-modal-header"><h2 class="team-modal-title" id="manualModalTitle">Tambah Tugas Manual</h2></div>
+            <div class="team-modal-subtitle">Tugas baru langsung masuk ke daftar pekerjaan hari ini.</div>
+
+            <form id="manualForm" novalidate autocomplete="off">
+                <div class="manual-grid">
+                    <div class="m-field">
+                        <label for="mMaterial">No. Material</label>
+                        <input id="mMaterial" placeholder="0001...">
+                    </div>
+
+                    <div class="m-field">
+                        <label for="mSo">No. SO</label>
+                        <input id="mSo" placeholder="SO-...">
+                    </div>
+
+                    <div class="m-field full">
+                        <label for="mWork">Pekerjaan</label>
+                        <input id="mWork" placeholder="Contoh: Setting cowl depan R25">
+                    </div>
+
+                    <div class="m-field">
+                        <label for="mQty">Qty</label>
+                        <input id="mQty" type="number" min="1" value="1">
+                    </div>
+
+                    <div class="m-field">
+                        <label for="mNik">NIK karyawan</label>
+                        <input id="mNik" placeholder="WN0007">
+                        <div class="m-hint">Opsional. Kosongkan jika belum ditugaskan.</div>
+                    </div>
+                </div>
+
+                <div class="status-error" id="manualError" role="alert"></div>
+
+                <div class="team-modal-actions">
+                    <button type="button" class="team-cancel-btn" id="closeManualModal">Batal</button>
+                    <button type="submit" class="team-save-btn">Tambah ke daftar</button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <!-- MODAL ISI ALASAN (pengganti prompt/confirm bawaan browser) -->
+    <div class="modal-backdrop top" id="askModal" role="dialog" aria-modal="true" aria-labelledby="askTitle">
+        <section class="status-modal" style="width:min(100%,480px)">
+            <div class="team-modal-header"><h2 class="team-modal-title" id="askTitle">Alasan</h2></div>
+            <div class="team-modal-subtitle" id="askSub"></div>
+
+            <div class="team-section-title" style="margin-top:0" id="askLabel">Alasan</div>
+            <textarea class="status-textarea" id="askInput" aria-labelledby="askLabel"></textarea>
+            <div class="status-error" id="askError" role="alert"></div>
+
+            <div class="team-modal-actions">
+                <button type="button" class="team-cancel-btn" id="askCancel">Batal</button>
+                <button type="button" class="team-save-btn" id="askOk">Lanjutkan</button>
+            </div>
+        </section>
+    </div>
+
+    <div class="team-toast" id="teamToast" role="status" aria-live="polite"></div>
+
+    <!-- POPUP ALASAN -->
+    <div class="modal-backdrop" id="reasonModal" role="dialog" aria-modal="true" aria-labelledby="reasonTitle">
+        <section class="reason-modal">
+            <div class="modal-title-row">
+                <div class="modal-icon" id="reasonIcon">⚠️</div>
+                <h2 class="modal-title" id="reasonTitle">Alasan Pending</h2>
+            </div>
+
+            <div class="reason-job">
+                <div class="reason-gear">⚙</div>
+                <div>
+                    <div class="reason-job-name" id="reasonWork">Nama pekerjaan</div>
+                    <div class="reason-meta">
+                        <span id="reasonEmployee">Karyawan</span><br>
+                        <span id="reasonTime">Waktu · tanggal</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reason-label" id="reasonLabel">Alasan pending</div>
+            <div class="reason-copy" id="reasonCopy">Alasan pekerjaan.</div>
+
+            <div class="modal-actions">
+                <button class="modal-close" id="closeReason">Kembali</button>
+                <button class="reason-action run" id="runJobBtn" type="button" hidden>▶ Jalankan pekerjaan</button>
+                <button class="reason-action reactivate" id="reactivateBtn" type="button" hidden>↻ Aktifkan lagi</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+        <header class="topbar">
+            <span class="crumb">Karyawan / <strong id="breadcrumb">Dashboard</strong></span>
+        </header>
+
+        <section class="content">
+
+            <div class="heading">
+                <div>
+                    <h1 id="pageTitle">Dashboard</h1>
+                    <p>Pantau pekerjaan, progress, dan karyawan yang bertanggung jawab.</p>
+                </div>
+                <div class="heading-side">
+                    <a class="hbtn primary" href="scanpicklist.html">⌕ Scan picklist</a>
+                    <button type="button" class="hbtn outline" id="addManualBtn">＋ Tambah tugas</button>
+                    <div class="date-note">◷ &nbsp; Data pekerjaan harian</div>
+                </div>
+            </div>
+
+            <!-- FILTER -->
+            <div class="filters">
+                <label class="field">
+                    <span>▦</span>
+                    <input id="dateFilter" type="date" aria-label="Filter tanggal">
+                </label>
+
+                <label class="field">
+                    <span>⌕</span>
+                    <input id="searchInput" type="search" placeholder="Cari nama karyawan atau pekerjaan..." aria-label="Cari karyawan atau pekerjaan">
+                </label>
+
+                <label class="field">
+                    <span>☷</span>
+                    <select id="statusFilter" aria-label="Filter status">
+                        <option value="all">Semua Status</option>
+                        <option>On progress</option>
+                        <option>Done</option>
+                        <option>Planning</option>
+                        <option>Pending</option>
+                        <option>Cancel</option>
+                    </select>
+                </label>
+            </div>
+
+            <!-- TABEL PEKERJAAN -->
+            <div class="table-card">
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No. Material</th>
+                                <th>Pekerjaan</th>
+                                <th>No. SO</th>
+                                <th>Jumlah</th>
+                                <th>Tim Pengerja</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="table-footer">
+                    <span id="resultCount">Menampilkan 0 pekerjaan</span>
+                    <div class="pagination">
+                        <button class="page" id="prevBtn" aria-label="Halaman sebelumnya">‹</button>
+                        <button class="page active">1</button>
+                        <button class="page" id="nextBtn" aria-label="Halaman selanjutnya">›</button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <footer class="footer">
+            <span><strong>© 2026 Section Viber</strong> · Portal Internal Section Viber</span>
+            <span>Hak cipta dilindungi undang-undang.</span>
+        </footer>
+
+    </main>
+</div>
+
+<script>
+/* DATA DUMMY PEKERJAAN
+   Progress, status, dan alasan disimpan PER KARYAWAN di dalam job.employees[] */
+
+const jobs = [
+    { date:'2026-09-30', material:'MAT-R25-001', work:'Cek dashboard R25', so:'SO-202603-001', qty:'1 pc',
+      employees:[
+        { id:'EMP002', name:'Dian Satrio', progress:40, status:'On progress' },
+        { id:'EMP001', name:'Rangga', progress:85, status:'On progress' }
+      ] },
+    { date:'2026-09-30', material:'MAT-R25-002', work:'Cuci belakang R25 MHD', so:'SO-202603-002', qty:'2 pcs',
+      employees:[ { id:'EMP001', name:'Rangga', progress:100, status:'Done' } ] },
+    { date:'2026-09-30', material:'MAT-R25-003', work:'Setting roll depan D5', so:'SO-202603-003', qty:'1 pc',
+      employees:[] },
+    { date:'2026-09-30', material:'MAT-R25-004', work:'Bumper belakang R25', so:'SO-202603-004', qty:'1 pc',
+      employees:[ { id:'WN0007', name:'Irfan Muhamad', progress:25, status:'Pending', time:'13:20',
+        reason:'Menunggu material dari gudang. Material belum tersedia sehingga pekerjaan belum dapat dilanjutkan.' } ] },
+    { date:'2026-09-30', material:'MAT-R25-005', work:'Extension dan bande R25', so:'SO-202603-005', qty:'2 unit',
+      employees:[
+        { id:'EMP011', name:'Maryono', progress:75, status:'On progress' },
+        { id:'EMP003', name:'Budi Santoso', progress:20, status:'Pending', time:'10:05',
+          reason:'Menunggu alat bantu dari section lain.' }
+      ] },
+    { date:'2026-09-30', material:'MAT-QRD-008', work:'Setting coil depan Ground', so:'SO-202603-006', qty:'1 unit',
+      employees:[ { id:'WN0007', name:'Irfan Muhamad', progress:30, status:'Cancel', time:'14:20',
+        reason:'Pekerjaan dibatalkan karena terdapat perubahan prioritas produksi dari leader.' } ] },
+    { date:'2026-10-01', material:'MAT-R25-006', work:'Pemeriksaan unit R25', so:'SO-202604-001', qty:'1 unit',
+      employees:[ { id:'EMP002', name:'Dian Satrio', progress:60, status:'On progress' } ] },
+    { date:'2026-10-01', material:'MAT-R25-007', work:'Finishing panel samping', so:'SO-202604-002', qty:'2 pcs',
+      employees:[ { id:'EMP001', name:'Rangga', progress:100, status:'Done' } ] }
+];
+
+const employeeDirectory = [
+    { id:'EMP001', name:'Rangga' },
+    { id:'EMP002', name:'Dian Satrio' },
+    { id:'EMP003', name:'Budi Santoso' },
+    { id:'EMP004', name:'Agus Pratama' },
+    { id:'EMP005', name:'Rizky Maulana' },
+    { id:'EMP011', name:'Maryono' },
+    { id:'WN0007', name:'Irfan Muhamad' }
+];
+
+/* Gabungkan dengan karyawan yang dikelola di halaman Karyawan (localStorage),
+   sehingga karyawan yang baru ditambahkan di sana juga bisa ditugaskan di sini. */
+(function mergeEmployeeList() {
+    try {
+        const saved = JSON.parse(localStorage.getItem('sectionViberEmployeeList') || 'null');
+        if (!Array.isArray(saved)) return;
+
+        saved.forEach(emp => {
+            if (emp && emp.nik && emp.name && !employeeDirectory.some(item => item.id === emp.nik)) {
+                employeeDirectory.push({ id: emp.nik, name: emp.name });
+            }
+        });
+    } catch (e) {}
+})();
+
+/* Tugas manual disimpan di localStorage supaya tidak hilang saat halaman dimuat ulang */
+const MANUAL_KEY = 'sectionViberDashboardManualJobs';
+
+(function loadManualJobs() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(MANUAL_KEY) || 'null');
+        if (!Array.isArray(saved)) return;
+
+        saved.forEach(job => {
+            if (job && job.material && Array.isArray(job.employees) &&
+                !jobs.some(item => item.material === job.material)) {
+                jobs.push({ ...job, manual: true });
+            }
+        });
+    } catch (e) {}
+})();
+
+function saveManualJobs() {
+    try {
+        localStorage.setItem(MANUAL_KEY, JSON.stringify(jobs.filter(job => job.manual)));
+    } catch (e) {}
+}
+
+const assignmentHistory = [];
+const currentLeader = 'Leader Section Viber';
+
+const $ = id => document.getElementById(id);
+const app = $('app');
+const findJob = material => jobs.find(item => item.material === material);
+
+function esc(v) {
+    return String(v).replace(/[&<>"']/g, c => ({
+        '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+    }[c]));
+}
+
+/* WARNA STATUS */
+function statusClass(status) {
+    return {
+        'On progress':'s-progress',
+        'Done':'s-done',
+        'Planning':'s-planning',
+        'Pending':'s-pending',
+        'Cancel':'s-cancel'
+    }[status] || 's-planning';
+}
+
+/* Status berdasarkan angka progress */
+function statusFromProgress(value) {
+    if (value >= 100) return 'Done';
+    if (value <= 0) return 'Planning';
+    return 'On progress';
+}
+
+/* Status efektif sebuah pekerjaan (untuk filter) */
+function jobStatuses(job) {
+    return job.employees.length ? job.employees.map(p => p.status) : ['Planning'];
+}
+
+/* RENDER TABEL DAN FILTER */
+function render() {
+    const query = $('searchInput').value.trim().toLowerCase();
+    const status = $('statusFilter').value;
+    const date = $('dateFilter').value;
+
+    const rows = jobs.filter(job => {
+        const matchDate = !date || job.date === date;
+        const matchStatus = status === 'all' || jobStatuses(job).includes(status);
+        const searchable = (
+            `${job.material} ${job.work} ${job.so} ${job.employees.map(p => p.name + ' ' + p.id).join(' ')}`
+        ).toLowerCase();
+        const matchSearch = !query || searchable.includes(query);
+        return matchDate && matchStatus && matchSearch;
+    });
+
+    if (rows.length === 0) {
+        $('tableBody').innerHTML = `
+            <tr><td colspan="8" class="empty">Tidak ada pekerjaan yang sesuai dengan filter.</td></tr>`;
+    } else {
+        $('tableBody').innerHTML = rows.map(job => {
+            const people = job.employees;
+
+            const teamHtml = people.length
+                ? people.map(p => `
+                    <div class="pl"><span class="team-chip" title="${esc(p.id)}">${esc(p.name)}</span></div>`).join('')
+                : '<div class="pl"><span class="team-empty">Belum ditugaskan</span></div>';
+
+            const progressBar = (value, gray) => `
+                <div class="pl">
+                    <div class="progress-wrap">
+                        <div class="track"><div class="fill ${gray ? 'gray' : ''}" style="width:${value}%"></div></div>
+                        <span class="percent">${value}%</span>
+                    </div>
+                </div>`;
+
+            const progressHtml = people.length
+                ? people.map(p => progressBar(p.progress, p.status === 'Cancel')).join('')
+                : progressBar(0, true);
+
+            const statusHtml = people.length
+                ? people.map(p => {
+                    const hasReason = ['Pending','Cancel'].includes(p.status);
+                    return `
+                    <div class="pl">
+                        <button type="button" class="status ${statusClass(p.status)} ${hasReason ? 'has-reason' : ''}"
+                            ${hasReason ? `data-job="${esc(job.material)}" data-emp="${esc(p.id)}" aria-label="Lihat alasan ${p.status} ${esc(p.name)}"` : ''}>
+                            ${p.status}
+                        </button>
+                    </div>`;
+                }).join('')
+                : '<div class="pl"><span class="status s-planning">Planning</span></div>';
+
+            return `
+                <tr>
+                    <td><span class="material">${esc(job.material)}</span></td>
+                    <td><span class="work">${esc(job.work)}</span></td>
+                    <td><span class="so">${esc(job.so)}</span></td>
+                    <td class="qty">${esc(job.qty)}</td>
+                    <td class="team-col">${teamHtml}</td>
+                    <td class="progress-cell">${progressHtml}</td>
+                    <td>${statusHtml}</td>
+                    <td class="action-col">
+                        <div class="actions">
+                            <button type="button" class="icon-btn has-count" data-act="team" data-job="${esc(job.material)}"
+                                title="${people.length ? 'Kelola tim' : 'Tugaskan karyawan'}" aria-label="Kelola tim ${esc(job.work)}">
+                                👥<span class="count">${people.length}</span>
+                            </button>
+                            <button type="button" class="icon-btn" data-act="progress" data-job="${esc(job.material)}"
+                                title="${people.length ? 'Update progress' : 'Tugaskan karyawan dulu untuk update progress'}"
+                                aria-label="Update progress ${esc(job.work)}" ${people.length ? '' : 'disabled'}>📈</button>
+                            <button type="button" class="icon-btn" data-act="history" data-job="${esc(job.material)}"
+                                title="Riwayat penugasan" aria-label="Riwayat penugasan ${esc(job.work)}">🕒</button>
+                            <button type="button" class="icon-btn" data-act="status" data-job="${esc(job.material)}"
+                                title="${people.length ? 'Ubah status' : 'Tugaskan karyawan dulu untuk mengubah status'}"
+                                aria-label="Ubah status ${esc(job.work)}" ${people.length ? '' : 'disabled'}>✎</button>
+                        </div>
+                    </td>
+                </tr>`;
+        }).join('');
+    }
+
+    $('resultCount').textContent = `Menampilkan ${rows.length} dari ${jobs.length} pekerjaan`;
+    saveManualJobs();
+}
+
+/* RIWAYAT PERUBAHAN */
+function recordAssignmentChange({ action, person, job, fromJob = '—', toJob = '—', reason }) {
+    assignmentHistory.unshift({
+        action,
+        employeeId: person.id,
+        employeeName: person.name,
+        fromJob, toJob, reason,
+        status: 'Diterapkan',
+        time: new Date().toLocaleString('id-ID', {
+            day:'2-digit', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit'
+        }),
+        changedBy: currentLeader,
+        material: job.material
+    });
+}
+
+function openHistoryModal(job) {
+    $('historyJobInfo').textContent = `${job.material} · ${job.work} · ${job.so}`;
+    const entries = assignmentHistory.filter(entry => entry.material === job.material);
+    $('historyList').innerHTML = entries.length ? entries.map(entry => `
+        <article class="history-item">
+            <div class="history-item-top">
+                <div>
+                    <div class="history-action">${esc(entry.action)}: ${esc(entry.employeeName)}</div>
+                    <div class="history-time">${esc(entry.time)}</div>
+                </div>
+                <span class="status s-done">${esc(entry.status)}</span>
+            </div>
+            <div class="history-grid">
+                <div class="history-field"><label>Karyawan</label><strong>${esc(entry.employeeName)} (${esc(entry.employeeId)})</strong></div>
+                <div class="history-field"><label>Diubah oleh</label><strong>${esc(entry.changedBy)}</strong></div>
+                <div class="history-field"><label>Asal</label><strong>${esc(entry.fromJob)}</strong></div>
+                <div class="history-field"><label>Tujuan</label><strong>${esc(entry.toJob)}</strong></div>
+            </div>
+            <div class="history-reason"><strong>Alasan:</strong> ${esc(entry.reason)}</div>
+        </article>
+    `).join('') : '<div class="history-empty">Belum ada riwayat perubahan untuk pekerjaan ini.</div>';
+    $('historyModal').classList.add('show');
+    $('closeHistoryModal').focus();
+}
+
+function closeHistoryModal() { $('historyModal').classList.remove('show'); }
+$('closeHistoryModal').addEventListener('click', closeHistoryModal);
+$('historyModal').addEventListener('click', e => { if (e.target === $('historyModal')) closeHistoryModal(); });
+
+/* TOAST */
+function showTeamToast(message) {
+    const toast = $('teamToast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    window.clearTimeout(showTeamToast.timer);
+    showTeamToast.timer = window.setTimeout(() => toast.classList.remove('show'), 2400);
+}
+
+/* MODAL ISI ALASAN
+   Menggantikan prompt() dan confirm() bawaan browser. Keduanya sering diblokir
+   (mis. di preview/iframe), sehingga tombol Tambahkan/Lepas tidak bereaksi.
+   askReason() mengembalikan teks alasan, atau null kalau dibatalkan. */
+
+let askResolve = null;
+let askRequired = false;
+let askDefault = '';
+
+function askReason({ title, subtitle = '', label = 'Alasan', placeholder = '', required = false,
+                     defaultText = '', confirmLabel = 'Lanjutkan', danger = false }) {
+    return new Promise(resolve => {
+        askResolve = resolve;
+        askRequired = required;
+        askDefault = defaultText;
+
+        $('askTitle').textContent = title;
+        $('askSub').textContent = subtitle;
+        $('askLabel').textContent = required ? label : `${label} (opsional)`;
+        $('askInput').value = '';
+        $('askInput').placeholder = placeholder;
+        $('askError').textContent = '';
+        $('askOk').textContent = confirmLabel;
+        $('askOk').classList.toggle('danger', danger);
+
+        $('askModal').classList.add('show');
+        $('askInput').focus();
+    });
+}
+
+function closeAsk(value) {
+    $('askModal').classList.remove('show');
+    const resolve = askResolve;
+    askResolve = null;
+    if (resolve) resolve(value);
+}
+
+$('askOk').addEventListener('click', () => {
+    const value = $('askInput').value.trim();
+
+    if (askRequired && !value) {
+        $('askError').textContent = 'Alasan wajib diisi.';
+        $('askInput').focus();
+        return;
+    }
+
+    closeAsk(value || askDefault);
+});
+
+$('askCancel').addEventListener('click', () => closeAsk(null));
+$('askModal').addEventListener('click', e => { if (e.target === $('askModal')) closeAsk(null); });
+$('askInput').addEventListener('input', () => { $('askError').textContent = ''; });
+
+/* KELOLA TIM */
+let activeTeamJob = null;
+
+function renderTeamModal() {
+    if (!activeTeamJob) return;
+
+    $('teamJobInfo').textContent = `${activeTeamJob.material} · ${activeTeamJob.work} · ${activeTeamJob.so}`;
+
+    const assigned = activeTeamJob.employees;
+    $('assignedEmployees').innerHTML = assigned.length
+        ? assigned.map(person => `
+            <div class="team-member-row">
+                <div>
+                    <div class="team-member-name">${esc(person.name)}</div>
+                    <div class="team-member-id">${esc(person.id)}</div>
+                </div>
+                <button type="button" class="team-remove-btn" data-remove-employee="${esc(person.id)}">Lepas dari pekerjaan</button>
+            </div>`).join('')
+        : '<div class="team-note" style="margin-top:0">Belum ada karyawan yang ditugaskan pada pekerjaan ini. Pilih karyawan di bawah lalu klik Tambahkan.</div>';
+
+    const available = employeeDirectory.filter(p => !assigned.some(c => c.id === p.id));
+    $('employeeSelect').innerHTML = '<option value="">Pilih karyawan...</option>' +
+        available.map(p => `<option value="${esc(p.id)}">${esc(p.name)} (${esc(p.id)})</option>`).join('');
+
+    $('addEmployeeBtn').disabled = available.length === 0;
+    $('addEmployeeBtn').style.opacity = available.length === 0 ? '.55' : '1';
+    $('addEmployeeBtn').style.cursor = available.length === 0 ? 'not-allowed' : 'pointer';
+}
+
+function openTeamModal(job) {
+    activeTeamJob = job;
+    renderTeamModal();
+    $('teamModal').classList.add('show');
+    $('closeTeamModal').focus();
+}
+
+function closeTeamModal() {
+    $('teamModal').classList.remove('show');
+    activeTeamJob = null;
+    render();
+}
+
+$('assignedEmployees').addEventListener('click', async event => {
+    const removeButton = event.target.closest('[data-remove-employee]');
+    if (!removeButton || !activeTeamJob) return;
+
+    const job = activeTeamJob;
+    const person = job.employees.find(item => item.id === removeButton.dataset.removeEmployee);
+    if (!person) return;
+
+    const reason = await askReason({
+        title: `Lepaskan ${person.name}?`,
+        subtitle: `Dari pekerjaan: ${job.work}`,
+        placeholder: 'Tulis alasan melepas karyawan dari pekerjaan ini...',
+        required: true,
+        confirmLabel: 'Lepaskan',
+        danger: true
+    });
+
+    if (reason === null) return;
+
+    job.employees = job.employees.filter(item => item.id !== person.id);
+    recordAssignmentChange({
+        action: 'Karyawan dilepas',
+        person,
+        job,
+        fromJob: `${job.material} — ${job.work}`,
+        toJob: 'Tidak lagi ditugaskan pada pekerjaan ini',
+        reason
+    });
+
+    if (activeTeamJob === job) renderTeamModal();
+    render();
+    showTeamToast(`${person.name} dilepas dari pekerjaan.`);
+});
+
+$('addEmployeeBtn').addEventListener('click', async () => {
+    if (!activeTeamJob) return;
+
+    const job = activeTeamJob;
+    const employeeId = $('employeeSelect').value;
+    if (!employeeId) { showTeamToast('Pilih karyawan terlebih dahulu.'); return; }
+
+    const person = employeeDirectory.find(item => item.id === employeeId);
+    if (!person || job.employees.some(item => item.id === employeeId)) {
+        showTeamToast('Karyawan sudah ditugaskan pada pekerjaan ini.');
+        return;
+    }
+
+    const reason = await askReason({
+        title: `Tambahkan ${person.name}`,
+        subtitle: `Ke pekerjaan: ${job.work}`,
+        placeholder: 'Contoh: karyawan lain sedang pending, butuh tambahan tenaga...',
+        required: false,
+        defaultText: 'Penugasan oleh leader.',
+        confirmLabel: 'Tambahkan'
+    });
+
+    if (reason === null) return;
+
+    if (job.employees.some(item => item.id === person.id)) {
+        showTeamToast('Karyawan sudah ditugaskan pada pekerjaan ini.');
+        return;
+    }
+
+    /* Karyawan baru mulai dengan progress & status sendiri */
+    job.employees.push({ id: person.id, name: person.name, progress: 0, status: 'Planning' });
+    recordAssignmentChange({
+        action: 'Penambahan karyawan',
+        person,
+        job,
+        fromJob: '-',
+        toJob: `${job.material} — ${job.work}`,
+        reason
+    });
+
+    if (activeTeamJob === job) renderTeamModal();
+    render();
+    showTeamToast(`${person.name} berhasil ditambahkan ke tim.`);
+});
+
+$('closeTeamModal').addEventListener('click', closeTeamModal);
+$('teamModal').addEventListener('click', e => { if (e.target === $('teamModal')) closeTeamModal(); });
+
+/* UPDATE PROGRESS (SLIDER PERSENTASE, PER KARYAWAN) */
+let progressJob = null;
+
+function currentProgressPerson() {
+    return progressJob && progressJob.employees.find(p => p.id === $('progressPersonSelect').value);
+}
+
+function paintSlider(value) {
+    const pos = `calc(${value}% + ${(11 - value * 0.22).toFixed(2)}px)`;
+    $('progressRange').style.setProperty('--p', pos);
+    $('sliderBubble').style.left = pos;
+    $('sliderBubble').textContent = `${value}%`;
+}
+
+function updateProgressSave() {
+    const person = currentProgressPerson();
+    const locked = !person || ['Pending', 'Cancel'].includes(person.status);
+    const changed = person && Number($('progressRange').value) !== person.progress;
+
+    $('saveProgressBtn').disabled = locked || !changed;
+}
+
+function refreshProgressPerson() {
+    const person = currentProgressPerson();
+    if (!person) return;
+
+    const locked = ['Pending', 'Cancel'].includes(person.status);
+
+    $('progressRange').value = person.progress;
+    $('progressRange').disabled = locked;
+    paintSlider(person.progress);
+
+    $('progressCurrent').textContent = `Status saat ini: ${person.status} · Progress ${person.progress}%`;
+
+    $('progressNote').hidden = !locked;
+    if (locked) {
+        $('progressNote').textContent = person.status === 'Pending'
+            ? 'Pekerjaan karyawan ini sedang Pending. Klik badge Pending di tabel lalu pilih "Jalankan pekerjaan" sebelum mengubah progress.'
+            : 'Pekerjaan karyawan ini sudah di-Cancel. Klik badge Cancel di tabel lalu pilih "Aktifkan lagi" sebelum mengubah progress.';
+    }
+
+    updateProgressSave();
+}
+
+function openProgressModal(job) {
+    if (!job.employees.length) { showTeamToast('Tugaskan karyawan terlebih dahulu.'); return; }
+
+    progressJob = job;
+    $('progressJobInfo').textContent = `${job.material} · ${job.work} · ${job.so}`;
+    $('progressPersonSelect').innerHTML = job.employees
+        .map(p => `<option value="${esc(p.id)}">${esc(p.name)} (${esc(p.id)})</option>`).join('');
+
+    refreshProgressPerson();
+    $('progressModal').classList.add('show');
+    $('progressRange').focus();
+}
+
+function closeProgressModal() {
+    $('progressModal').classList.remove('show');
+    progressJob = null;
+}
+
+$('progressPersonSelect').addEventListener('change', refreshProgressPerson);
+
+$('progressRange').addEventListener('input', () => {
+    paintSlider(Number($('progressRange').value));
+    updateProgressSave();
+});
+
+$('saveProgressBtn').addEventListener('click', () => {
+    const person = currentProgressPerson();
+    if (!person || !progressJob) return;
+
+    const job = progressJob;
+    const oldValue = person.progress;
+    const newValue = Number($('progressRange').value);
+
+    person.progress = newValue;
+    person.status = statusFromProgress(newValue);
+
+    recordAssignmentChange({
+        action: 'Update progress',
+        person,
+        job,
+        fromJob: `Progress: ${oldValue}%`,
+        toJob: `Progress: ${newValue}%`,
+        reason: 'Progress diperbarui oleh leader dari dashboard.'
+    });
+
+    closeProgressModal();
+    render();
+    showTeamToast(`Progress ${person.name} menjadi ${newValue}%.`);
+});
+
+$('closeProgressModal').addEventListener('click', closeProgressModal);
+$('progressModal').addEventListener('click', e => { if (e.target === $('progressModal')) closeProgressModal(); });
+
+/* UBAH STATUS (PER KARYAWAN): PENDING / CANCEL + ALASAN */
+let statusJob = null;
+let chosenStatus = '';
+
+function refreshStatusCurrent() {
+    const person = statusJob.employees.find(p => p.id === $('statusPersonSelect').value);
+    $('statusCurrent').textContent = person
+        ? `Status saat ini: ${person.status} · Progress ${person.progress}%`
+        : '';
+}
+
+function selectStatusOption(value) {
+    chosenStatus = value;
+    document.querySelectorAll('.status-opt').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.val === value);
+    });
+    $('statusReasonLabel').textContent = value ? `Alasan ${value.toLowerCase()}` : 'Alasan';
+    $('statusReason').placeholder = value
+        ? `Tulis alasan kenapa ${value.toLowerCase()}...`
+        : 'Tulis alasan kenapa pending / cancel...';
+}
+
+function openStatusModal(job) {
+    if (!job.employees.length) { showTeamToast('Tugaskan karyawan terlebih dahulu.'); return; }
+
+    statusJob = job;
+    $('statusJobInfo').textContent = `${job.material} · ${job.work} · ${job.so}`;
+    $('statusPersonSelect').innerHTML = job.employees
+        .map(p => `<option value="${esc(p.id)}">${esc(p.name)} (${esc(p.id)})</option>`).join('');
+    $('statusReason').value = '';
+    $('statusError').textContent = '';
+    selectStatusOption('');
+    refreshStatusCurrent();
+
+    $('statusModal').classList.add('show');
+    $('statusPersonSelect').focus();
+}
+
+function closeStatusModal() {
+    $('statusModal').classList.remove('show');
+    statusJob = null;
+}
+
+$('statusPersonSelect').addEventListener('change', refreshStatusCurrent);
+document.querySelectorAll('.status-opt').forEach(btn => {
+    btn.addEventListener('click', () => { selectStatusOption(btn.dataset.val); $('statusError').textContent = ''; });
+});
+
+$('saveStatusBtn').addEventListener('click', () => {
+    if (!statusJob) return;
+
+    const person = statusJob.employees.find(p => p.id === $('statusPersonSelect').value);
+    const reason = $('statusReason').value.trim();
+
+    if (!person) { $('statusError').textContent = 'Pilih karyawan terlebih dahulu.'; return; }
+    if (!chosenStatus) { $('statusError').textContent = 'Pilih status Pending atau Cancel.'; return; }
+    if (!reason) { $('statusError').textContent = `Alasan ${chosenStatus.toLowerCase()} wajib diisi.`; return; }
+
+    const oldStatus = person.status;
+    person.status = chosenStatus;
+    person.reason = reason;
+    person.time = new Date().toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }).replace('.', ':');
+
+    recordAssignmentChange({
+        action: 'Perubahan status',
+        person,
+        job: statusJob,
+        fromJob: `Status: ${oldStatus}`,
+        toJob: `Status: ${chosenStatus}`,
+        reason
+    });
+
+    const name = person.name;
+    const status = chosenStatus;
+    closeStatusModal();
+    render();
+    showTeamToast(`Status ${name} diubah menjadi ${status}.`);
+});
+
+$('closeStatusModal').addEventListener('click', closeStatusModal);
+$('statusModal').addEventListener('click', e => { if (e.target === $('statusModal')) closeStatusModal(); });
+
+/* TAMBAH TUGAS MANUAL (form seperti halaman Penugasan) */
+function todayISO() {
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function openManualModal() {
+    $('manualForm').reset();
+    $('mQty').value = 1;
+    $('manualError').textContent = '';
+    $('manualModal').classList.add('show');
+    $('mMaterial').focus();
+}
+
+function closeManualModal() {
+    $('manualModal').classList.remove('show');
+}
+
+$('addManualBtn').addEventListener('click', openManualModal);
+$('closeManualModal').addEventListener('click', closeManualModal);
+$('manualModal').addEventListener('click', e => { if (e.target === $('manualModal')) closeManualModal(); });
+$('manualForm').addEventListener('input', () => { $('manualError').textContent = ''; });
+
+$('manualForm').addEventListener('submit', event => {
+    event.preventDefault();
+
+    const material = $('mMaterial').value.trim();
+    const so = $('mSo').value.trim();
+    const work = $('mWork').value.trim().replace(/\s+/g, ' ');
+    const qty = Math.floor(Number($('mQty').value));
+    const nik = $('mNik').value.trim();
+
+    const fail = message => { $('manualError').textContent = message; };
+
+    if (!material || !so || !work) { fail('No. Material, No. SO, dan Pekerjaan wajib diisi.'); return; }
+    if (!qty || qty < 1) { fail('Qty minimal 1.'); return; }
+
+    if (jobs.some(item => item.material.toLowerCase() === material.toLowerCase())) {
+        fail(`No. Material ${material} sudah ada di daftar pekerjaan.`);
+        return;
+    }
+
+    let person = null;
+
+    if (nik) {
+        person = employeeDirectory.find(item => item.id.toLowerCase() === nik.toLowerCase());
+
+        if (!person) {
+            fail(`NIK ${nik} tidak ditemukan. Tambahkan dulu di halaman Karyawan, atau kosongkan NIK.`);
+            return;
+        }
+    }
+
+    const job = {
+        date: todayISO(),
+        material,
+        work,
+        so,
+        qty: `${qty} pc${qty > 1 ? 's' : ''}`,
+        employees: [],
+        manual: true
+    };
+
+    if (person) {
+        job.employees.push({ id: person.id, name: person.name, progress: 0, status: 'Planning' });
+    }
+
+    jobs.push(job);
+
+    if (person) {
+        recordAssignmentChange({
+            action: 'Penambahan karyawan',
+            person,
+            job,
+            fromJob: '-',
+            toJob: `${job.material} — ${job.work}`,
+            reason: 'Tugas manual ditambahkan oleh leader.'
+        });
+    }
+
+    /* Reset filter supaya tugas baru langsung terlihat */
+    $('dateFilter').value = '';
+    $('searchInput').value = '';
+    $('statusFilter').value = 'all';
+
+    closeManualModal();
+    render();
+    showTeamToast(person
+        ? `Tugas ditambahkan dan ditugaskan ke ${person.name}.`
+        : 'Tugas ditambahkan. Belum ada karyawan yang ditugaskan.');
+});
+
+/* AKSI DI TABEL (4 IKON) */
+$('tableBody').addEventListener('click', event => {
+    const actionBtn = event.target.closest('[data-act]');
+    if (actionBtn && !actionBtn.disabled) {
+        const job = findJob(actionBtn.dataset.job);
+        if (!job) return;
+        if (actionBtn.dataset.act === 'team') openTeamModal(job);
+        if (actionBtn.dataset.act === 'progress') openProgressModal(job);
+        if (actionBtn.dataset.act === 'history') openHistoryModal(job);
+        if (actionBtn.dataset.act === 'status') openStatusModal(job);
+        return;
+    }
+
+    /* Klik badge status Pending / Cancel -> lihat alasan */
+    const chip = event.target.closest('.status.has-reason');
+    if (!chip) return;
+    const job = findJob(chip.dataset.job);
+    const person = job && job.employees.find(p => p.id === chip.dataset.emp);
+    if (job && person) openReason(job, person);
+});
+
+/* FILTER EVENT */
+$('searchInput').addEventListener('input', render);
+$('statusFilter').addEventListener('change', render);
+$('dateFilter').addEventListener('change', render);
+
+/* COLLAPSE SIDEBAR */
+$('toggleBtn').addEventListener('click', () => {
+    if (window.innerWidth <= 650) app.classList.toggle('mobile-open');
+    else app.classList.toggle('collapsed');
+});
+$('overlay').addEventListener('click', () => app.classList.remove('mobile-open'));
+
+/* POPUP ALASAN PENDING DAN CANCEL (PER KARYAWAN)
+   Pending  -> tombol "Jalankan pekerjaan"
+   Cancel   -> tombol "Aktifkan lagi" */
+let reasonJob = null;
+let reasonPerson = null;
+
+function openReason(job, person) {
+    const isPending = person.status === 'Pending';
+
+    reasonJob = job;
+    reasonPerson = person;
+
+    $('reasonIcon').textContent = isPending ? '⚠️' : '📄';
+    $('reasonIcon').className = 'modal-icon ' + (isPending ? 'pending' : 'cancel');
+    $('reasonTitle').textContent = isPending ? 'Alasan Pending' : 'Alasan Cancel';
+    $('reasonWork').textContent = job.work;
+    $('reasonEmployee').textContent = `${person.id} · ${person.name}`;
+
+    const formattedDate = job.date.split('-').reverse().join('/');
+    $('reasonTime').textContent = `${person.time || '—'} · ${formattedDate}`;
+
+    $('reasonLabel').textContent = isPending ? 'Alasan pending' : 'Alasan cancel';
+    $('reasonCopy').textContent = person.reason || 'Belum ada alasan yang ditambahkan.';
+    $('reasonCopy').className = 'reason-copy ' + (isPending ? 'pending' : 'cancel');
+
+    $('runJobBtn').hidden = !isPending;
+    $('reactivateBtn').hidden = isPending;
+
+    $('reasonModal').classList.add('show');
+    $('closeReason').focus();
+}
+
+function closeReason() {
+    $('reasonModal').classList.remove('show');
+    reasonJob = null;
+    reasonPerson = null;
+}
+
+function resumeWork(kind) {
+    if (!reasonJob || !reasonPerson) return;
+
+    const job = reasonJob;
+    const person = reasonPerson;
+    const oldStatus = person.status;
+    const oldReason = person.reason || '-';
+
+    /* Pending dijalankan -> On progress.
+       Cancel diaktifkan lagi -> mengikuti progress terakhir. */
+    const newStatus = kind === 'run'
+        ? (person.progress >= 100 ? 'Done' : 'On progress')
+        : statusFromProgress(person.progress);
+
+    person.status = newStatus;
+    delete person.reason;
+    delete person.time;
+
+    recordAssignmentChange({
+        action: kind === 'run' ? 'Pekerjaan dijalankan' : 'Pekerjaan diaktifkan lagi',
+        person,
+        job,
+        fromJob: `Status: ${oldStatus}`,
+        toJob: `Status: ${newStatus}`,
+        reason: `${kind === 'run' ? 'Dijalankan' : 'Diaktifkan'} kembali oleh leader. Alasan sebelumnya: ${oldReason}`
+    });
+
+    closeReason();
+    render();
+    showTeamToast(kind === 'run'
+        ? `Pekerjaan ${person.name} dijalankan kembali.`
+        : `Pekerjaan ${person.name} diaktifkan lagi (${newStatus}).`);
+}
+
+$('runJobBtn').addEventListener('click', () => resumeWork('run'));
+$('reactivateBtn').addEventListener('click', () => resumeWork('reactivate'));
+
+$('closeReason').addEventListener('click', closeReason);
+$('reasonModal').addEventListener('click', e => { if (e.target === $('reasonModal')) closeReason(); });
+
+document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape') return;
+
+    /* Modal alasan berada paling atas, tutup yang ini dulu saja */
+    if ($('askModal').classList.contains('show')) { closeAsk(null); return; }
+
+    closeReason();
+    if ($('manualModal').classList.contains('show')) closeManualModal();
+    if ($('progressModal').classList.contains('show')) closeProgressModal();
+    if ($('statusModal').classList.contains('show')) closeStatusModal();
+    if ($('teamModal').classList.contains('show')) closeTeamModal();
+    if ($('historyModal').classList.contains('show')) closeHistoryModal();
+});
+
+/* NAVIGASI MENU */
+document.querySelectorAll('.nav a').forEach(link => {
+    link.addEventListener('click', event => {
+        event.preventDefault();
+        document.querySelectorAll('.nav a').forEach(item => item.classList.remove('active'));
+        link.classList.add('active');
+        $('pageTitle').textContent = link.dataset.page;
+        $('breadcrumb').textContent = link.dataset.page;
+        if (window.innerWidth <= 650) app.classList.remove('mobile-open');
+    });
+});
+
+/* LOGOUT SIMULASI */
+$('logoutBtn').addEventListener('click', () => {
+    if (confirm('Apakah kamu yakin ingin logout dari dashboard?')) {
+        alert('Simulasi logout berhasil. Pada aplikasi asli, tombol ini dihubungkan ke proses logout.');
+    }
+});
+
+/* PAGINATION SIMULASI */
+$('prevBtn').addEventListener('click', () => {});
+$('nextBtn').addEventListener('click', () => {});
+
+/* TAMPILKAN DATA PERTAMA KALI */
+render();
+</script>
+
+</body>
+</html>
